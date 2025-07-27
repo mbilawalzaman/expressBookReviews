@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
+const env = require('dotenv').config()
+jwt_key = env.parsed.jwt_key;
 
 const app = express();
 
@@ -13,7 +15,7 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 app.use("/customer/auth/*", function auth(req, res, next) {
     if (req.session.authorization) {
         let token = req.session.authorization['accessToken'];
-        jwt.verify(token, "your_secret_key", (err, user) => {
+        jwt.verify(token, jwt_key, (err, user) => {
             if (err) {
                 return res.status(403).json({ message: "User not authenticated" });
             }
@@ -30,4 +32,4 @@ const PORT =5000;
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 
-app.listen(PORT,()=>console.log("Server is running"));
+app.listen(PORT,()=>console.log("Server is running on PORT "+ PORT));
